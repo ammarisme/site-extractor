@@ -4,16 +4,17 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import urljoin
 from docx import Document
 import sys
 
-# Configure Selenium to use Chrome in headless mode
+# Configure Selenium to use Chrome in headless mode,
+# with automatic driver management via webdriver-manager
 options = webdriver.ChromeOptions()
 options.add_argument("--headless")
 options.add_argument("--disable-gpu")
-# If you have chromedriver on your PATH already, you can omit Service
-service = Service()  # or Service("/path/to/chromedriver")
+service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
 def extract_links_with_prefix(driver, url, prefix, timeout=10):
@@ -41,12 +42,11 @@ def extract_page_text(driver, url, timeout=10):
     """Navigate to `url` and return text of the main content area."""
     try:
         driver.get(url)
-        # Wait until the content div is present
         WebDriverWait(driver, timeout).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, ".md-content__inner.md-typeset"))
+            EC.presence_of_element_located((By.ID, "content-area"))
         )
-        content_elem = driver.find_element(By.CSS_SELECTOR, ".md-content__inner.md-typeset")
-        return content_elem.text.strip()
+        content = driver.find_element(By.ID, "content-area").text.strip()
+        return content
     except (TimeoutException, WebDriverException) as e:
         print(f"Failed to fetch or parse {url}: {e}", file=sys.stderr)
         return ""
@@ -76,8 +76,9 @@ def main():
     doc.save(output_path)
     print(f"Document saved as {output_path}")
 
-if __name__ == "__main__":
-    try:
-        main()
-    finally:
-        driver.quit()
+main()
+# if __name__ == "__main__":
+#     try:
+#         main()
+#     finally:
+#         driver.quit()
