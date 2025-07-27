@@ -13,6 +13,22 @@
             "cwd": "${workspaceFolder}",
             // Point to the virtualenv's Python interpreter in the current folder
             "python": "${workspaceFolder}/venv/Scripts/python.exe"
+        },
+        {
+            "name": "Uvicorn: server.py",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "server:app",
+                "--reload",
+                "--host", "127.0.0.1",
+                "--port", "8000"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "jinja": true
         }
     ]
 }
